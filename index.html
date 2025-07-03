@@ -7,7 +7,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button id="hi">Hi</button>
+
+    <div id="interface" class="visible">
+        <h1 id="h1">Let's play: </h1>
+        
+
+        <label for="size">Size: </label>
+        <input type="number" name="size" id="size" value="3" max="99"> 
+
+        <label for="player1">Player 1 (X):</label>
+        <input type="text" name="player1" id="player1"> 
+
+        <label for="player2">Player 2 (O):</label>
+        <input type="text" name="player2" id="player2">
+
+        <p class="score">P1: 0 P2: 0 T:0</p>
+
+        <button type="submit" class="submit">Start</button>
+    </div>
+
+    <div id="container" class="invisible">
+        <div id="gameBoard" class="gameBoard">
+    
+        </div>
+    
+        <p id="roundOf"></p>
+        <p class="score"></p>
+    </div>
 
     <script src="app.js"></script>
 </body>
