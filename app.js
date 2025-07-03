@@ -1,8 +1,9 @@
 let ticTacToe_square = [] 
 let buttons 
-let playerX
-let playerO
-const roundOf = document.getElementById('roundOf') 
+const scoreDisplay = document.querySelectorAll('.score')
+let numOfDraw = 0;
+
+const displayRoundOf = document.getElementById('displayRoundOf') 
 
 function swapVisibility() {
     const intro = document.getElementById('interface')
@@ -15,68 +16,75 @@ function swapVisibility() {
 }
 
 
-function createPlayer (name, sign) 
+
+
+function createPlayer (named, sign) 
 { 
-    let characterColor
-    let named
+    let characterColor    
     let backgroundColorBody
+    let signColor
 
-    if(name == null || name === '')
-    {
-        named = `player ${sign}`; 
-    }
-    else
-    {
-        named = name
-    }
 
-    let image = `${sign}.svg`
 
-    if (sign == 'tie')
+    const player = {
+        name : named && named !== '' ? named : `player${sign}`,
+        sign,
+        score : 0, 
+        image : `url('${sign}.svg')`
+    } 
+
+
+    if(sign == 'X')
     {
-        characterColor = 'green'
-        backgroundColorBody = 'lightgreen'
+        signColor = 'red'
+        backgroundColorBody = 'rgb(255, 100, 100)' 
+        characterColor = 'black'
     }
-    else if(sign == 'X')
+    if (sign == 'O')
     {
-        characterColor = 'red'
-        backgroundColorBody = 'rgb(255, 100, 100)'
-    }
-    else if (sign == 'O')
-    {
-        characterColor = 'blue'
+        signColor = 'blue'
         backgroundColorBody = 'rgb(90, 135, 255)'
+        characterColor = 'white'
     }
     
-    let score = 0
 
-    const win = () => score++;
-    const showScore = () => score;
+    player.win = (destination) => {
+        player.score++;
+        document.body.style.backgroundColor = backgroundColorBody
+        destination.style.color = signColor
+        destination.innerText = `Wins: ${player.name} (${player.sign})`
+    } 
 
-    return {named, image, sign, characterColor, backgroundColorBody, win, showScore}
+
+    player.showScore = () => {
+        score
+    };
+    player.setRound = (destination) => {
+        document.body.style.backgroundColor = backgroundColorBody
+        destination.style.backgroundColor = signColor
+        destination.style.color = characterColor
+        destination.textContent = `Round of: ${player.name} (${player.sign})`
+    }
+
+    return player
 }
 
-let player0 = createPlayer('', 'X')
-player0.win()
-console.log(player0.showScore())
 
-/* function scoreCounter() {
-    let playerX = 0
-    let playerO = 0
-    let tie = 0 
 
-    const playerXShow = () => playerX;
-    const playerOShow = () => playerO;
-    const tieShow = () => tie;
 
-    const playerXWin = () => playerX++;
-    const playerOWin = () => playerO++;
-    const tied = () => tie++;
+const xplayer = createPlayer('PlayerX', 'X') 
+const oplayer = createPlayer('PlayerO', 'O')
 
-    return {playerOWin, playerXWin, tied, playerXShow, playerOShow, tieShow}
-} 
-const score = scoreCounter()
-*/
+function changeScores () {
+    scoreDisplay.forEach( e => {
+        if(xplayer.score != 0 || oplayer != 0 || numOfDraw != 0)
+            {
+                e.classList.remove('invisible')
+                e.textContent = `${xplayer.name}(X): ${xplayer.score} ${oplayer.name}(O): ${oplayer.score} Draw: ${numOfDraw}` 
+            } 
+    })
+}
+
 
 
 function squareGen (n)
@@ -116,6 +124,7 @@ function squareGen (n)
     } 
 
     buttons = document.querySelectorAll('.ticTacToe')
+    
     played(buttons)
 }
 
@@ -133,19 +142,11 @@ submit.forEach(element => {
     squareGen(size) 
     
 
-    function createPlayer(player, sign) 
-    {
-        return {
-            player,
-            sign,
-        }
-    } 
-    playerX = createPlayer(document.getElementById('player1').value, 'X')
-    playerO = createPlayer(document.getElementById('player2').value, 'O')
+    xplayer.name = document.getElementById('player1').value
+    oplayer.name = document.getElementById('player2').value
 
-    roundOf.textContent = `ROUND OF: ${playerX.player} (${playerX.sign})`
-    roundOf.style.backgroundColor = 'red'
-
+    xplayer.setRound(displayRoundOf)
+    changeScores()
 })
 });
 
@@ -166,20 +167,17 @@ function Moving()
                 {
                     swapVisibility()
 
-                    if(line[0] == playerX.sign)
+                    if(line[0] == xplayer.sign)
                     { 
-                        h1.innerText = (`WINS ${playerX.player}`);
-                        h1.style.color = 'red'
-                        score.playerXWin() 
+                        xplayer.win(h1)
                         
                     }
-                    else if(line[0] == playerO.sign)
+                    else if(line[0] == oplayer.sign)
                     {
-                        h1.innerText = (`WINS ${playerO.player}`);
-                        h1.style.color = 'blue'
-                        score.playerOWin()
+                        oplayer.win(h1)
 
                     }
+                    changeScores()
                     return true;
                 }
             }
@@ -210,9 +208,10 @@ function checkSpace()       //checks if there are no more spaces available, if t
         }
     }
     swapVisibility()
-    h1.innerText = 'DRAW'
-    h1.style.color = 'green'
-    score.tied()
+    numOfDraw++;
+        h1.style.color = 'green'
+        h1.textContent = 'Draw'
+    
     return true
 }
 
@@ -272,7 +271,7 @@ function played(buttons)
     let counter = 0
     buttons.forEach(element => {
     element.addEventListener('click', ele => {
-        
+        console.log(xplayer.name)
 
         function round(box)
         {                
@@ -281,22 +280,18 @@ function played(buttons)
             if((counter % 2) == 0)
             {
                 
-                box.style.backgroundImage = "url('Red_X.svg')" 
+                box.style.backgroundImage = xplayer.image
 
+                oplayer.setRound(displayRoundOf)
 
-                roundOf.textContent = `ROUND OF: ${playerO.player} (${playerO.sign})`
-                roundOf.style.backgroundColor = 'blue'
-                document.body.style.backgroundColor = 'lightblue'
                 ticTacToe_square[box.dataset.y] [box.dataset.x] = 'X'
             }
             else
             {
 
-                box.style.backgroundImage = "url('Map-circle-blue.svg')"
+                box.style.backgroundImage = oplayer.image
 
-                roundOf.textContent = `ROUND OF: ${playerX.player} (${playerX.sign})`
-                roundOf.style.backgroundColor = 'red'
-                document.body.style.backgroundColor = 'rgb(255, 118, 118)'
+                xplayer.setRound(displayRoundOf)
                 ticTacToe_square[box.dataset.y] [box.dataset.x] = 'O'
             }
             counter++;
